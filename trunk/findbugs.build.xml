@@ -16,7 +16,7 @@
   <property name="findbugs.filter.file" location="${configfiles.dir}/hackystat.findbugs.exclude.xml" />
   <available file="${findbugs.filter.file}" type="file" property="findbugs.filter.available" />
   <target name="findbugs.install.filter.file" unless="findbugs.filter.available">
-    <get src="${configfiles.url}/hackystat.findbugs.exclude.xml" dest="${findbugs.filter.file}" usetimestamp="true" />
+    <get src="${configfiles.url}/findbugs.exclude.xml" dest="${findbugs.filter.file}" usetimestamp="true" />
   </target>
 
   <property name="findbugs.dir" location="${build.dir}/findbugs" />
