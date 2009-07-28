@@ -17,10 +17,10 @@
   <property name="pmd.failonerror" value="false" />
   
   <!-- Download the pmd.rulesets.xml file if necessary. -->
-  <property name="pmd.rulesets.file" location="${configfiles.dir}/hackystat.pmd.xml"/>
+  <property name="pmd.rulesets.file" location="${configfiles.dir}/pmd.rulesets.xml"/>
   <available file="${pmd.rulesets.file}" type="file" property="pmd.rulesets.available" />
   <target name="pmd.install.rulesets.file" unless="pmd.rulesets.available">
-    <get src="${configfiles.url}/hackystat.pmd.xml"
+    <get src="${configfiles.url}/pmd.rulesets.xml"
          dest="${pmd.rulesets.file}" usetimestamp="true"/>
   </target>
 

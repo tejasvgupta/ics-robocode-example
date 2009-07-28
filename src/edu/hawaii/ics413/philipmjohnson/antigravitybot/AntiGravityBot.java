@@ -24,8 +24,6 @@ public class AntiGravityBot extends AdvancedRobot {
   Map<String, Enemy> enemies = new HashMap<String, Enemy>(); 
   /** The robot we will target for firing upon. */
   Enemy targetEnemy;
-  /** Our current direction: 1 is forward, -1 is backward. */
-  int direction = 1;
   /** The strength of the gravity point in the middle of the field. */
   double midpointstrength = 0;
   /** Number of turns since that strength was changed. */
@@ -176,15 +174,18 @@ public class AntiGravityBot extends AdvancedRobot {
     setTurnRadarLeftRadians(2 * Math.PI);
   }
 
-  /** Move the gun to the predicted next bearing of the enemy **/
+  /** 
+   * Move the gun to the predicted next bearing of the enemy.
+   * @param firePower The firepower associated with the targetEnemy.  
+   */
   void setupMoveGun(double firePower) {
     if (targetEnemy != null) {
     long time = getTime()
-        + (int) Math.round((getRange(getX(), getY(), targetEnemy.x, targetEnemy.y) / (20 - (3 * firePower))));
+        + (int) Math.round((getRange(getX(), getY(), targetEnemy.x, targetEnemy.y) / 
+            (20 - (3 * firePower))));
     Point2D.Double p = targetEnemy.guessPosition(time);
 
-    // offsets the gun by the angle to the next shot based on linear targeting provided by the enemy
-    // class
+    // offsets the gun by the angle to the next shot based on linear targeting 
     double gunOffset = getGunHeadingRadians()
         - (Math.PI / 2 - Math.atan2(p.y - getY(), p.x - getX()));
     setTurnGunLeftRadians(normaliseBearing(gunOffset));
@@ -193,28 +194,34 @@ public class AntiGravityBot extends AdvancedRobot {
 
   /**
    * If a bearing is not within the -pi to pi range, alters it to provide the shortest angle.
-   * @param ang The original angle.
+   * @param angle The original angle.
    * @return The shortest angle.
    */
-  double normaliseBearing(double ang) {
-    if (ang > Math.PI)
-      ang -= 2 * Math.PI;
-    if (ang < -Math.PI)
-      ang += 2 * Math.PI;
-    return ang;
+  double normaliseBearing(double angle) {
+    double newAngle = angle;
+    if (angle > Math.PI) {
+      newAngle -= 2 * Math.PI;
+    }
+    else if (angle < -Math.PI) {
+      newAngle += 2 * Math.PI;
+    }
+    return newAngle;
   }
 
   /**
    * If a heading is not within the 0 to 2pi range, alters it to provide the shortest angle.
-   * @param ang The original angle.
+   * @param angle The original angle.
    * @return The shortest angle.
    */
-  double normaliseHeading(double ang) {
-    if (ang > 2 * Math.PI)
-      ang -= 2 * Math.PI;
-    if (ang < 0)
-      ang += 2 * Math.PI;
-    return ang;
+  double normaliseHeading(double angle) {
+    double newAngle = angle;
+    if (angle > 2 * Math.PI) {
+      newAngle -= 2 * Math.PI;
+    }
+    if (angle < 0) {
+      newAngle += 2 * Math.PI;
+    }
+    return newAngle;
   }
 
   /**
@@ -228,12 +235,11 @@ public class AntiGravityBot extends AdvancedRobot {
   public double getRange(double x1, double y1, double x2, double y2) {
     double xo = x2 - x1;
     double yo = y2 - y1;
-    double h = Math.sqrt(xo * xo + yo * yo);
-    return h;
+    return Math.sqrt(xo * xo + yo * yo);
   }
 
   /**
-   * Gets the absolute bearing between to x,y coordinates
+   * Gets the absolute bearing between to x,y coordinates.
    * @param x1 First x.
    * @param y1 First y.
    * @param x2 Second x.
@@ -261,6 +267,7 @@ public class AntiGravityBot extends AdvancedRobot {
 
   /**
    * When a robot is detected, add it to our enemies list. 
+   * @param e The ScannedRobotEvent. 
    */
   public void onScannedRobot(ScannedRobotEvent e) {
     Enemy en;
@@ -274,8 +281,8 @@ public class AntiGravityBot extends AdvancedRobot {
     // Get the absolute bearing to the point where the bot is
     double absbearing_rad = (getHeadingRadians() + e.getBearingRadians()) % (2 * Math.PI);
     // Initialize info about this enemy robot.
-    double h = normaliseBearing(e.getHeadingRadians() - en.heading);
-    h = h / (getTime() - en.ctime);
+    //double h = normaliseBearing(e.getHeadingRadians() - en.heading);
+    //h = h / (getTime() - en.ctime);
     en.x = getX() + Math.sin(absbearing_rad) * e.getDistance(); // works out the x coordinate of
     // where the target is
     en.y = getY() + Math.cos(absbearing_rad) * e.getDistance(); // works out the y coordinate of
@@ -291,7 +298,7 @@ public class AntiGravityBot extends AdvancedRobot {
     if (targetEnemy == null) {
       targetEnemy = en;
     }
-    else if ((en.distance < targetEnemy.distance) || (targetEnemy.live == false)) {
+    else if ((en.distance < targetEnemy.distance) || (!targetEnemy.live)) {
       targetEnemy = en;
     }
   }
@@ -309,11 +316,16 @@ public class AntiGravityBot extends AdvancedRobot {
    * Provides state information about all robots in this match.
    * @author Philip Johnson
    */
-  private class Enemy {
+  private static class Enemy {
     public double heading, speed, x, y, distance;
     public long ctime; // game time that the scan was produced
     public boolean live; // is the enemy alive?
 
+    /**
+     * Returns a point indicating where we believe this enemy will be in the future. 
+     * @param when The future time.
+     * @return The future location. 
+     */
     public Point2D.Double guessPosition(long when) {
       double diff = when - ctime;
       double newY = y + Math.cos(heading) * speed * diff;
@@ -326,9 +338,15 @@ public class AntiGravityBot extends AdvancedRobot {
   /** 
    * Holds the x, y, and strength info of a gravity point. 
    */
-  class GravPoint {
+  private static class GravPoint {
     public double x, y, power;
 
+    /**
+     * Creates a new GravPoint class indicating a source of repulsive force for our robot.
+     * @param pX The x coordinate.
+     * @param pY The y coordinate.
+     * @param pPower The repulsive force to be associated with this object. 
+     */
     public GravPoint(double pX, double pY, double pPower) {
       x = pX;
       y = pY;
