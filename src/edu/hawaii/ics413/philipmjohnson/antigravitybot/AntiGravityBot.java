@@ -13,7 +13,7 @@ import robocode.ScannedRobotEvent;
  * An AdvancedRobot illustrating Anti-Gravity movement. Adapted from:
  * http://www.ibm.com/developerworks/library/j-antigrav/
  * 
- * Changes include: updated to Java 5, documentation, formatting.
+ * Changes include: updated to Java 6, documentation, formatting.
  * 
  * @author Alisdair Owens (original)
  * @author Philip Johnson
