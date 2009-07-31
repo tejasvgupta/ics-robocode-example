@@ -5,12 +5,12 @@
 
   <import file="common.build.xml" />
 
-  <target name="install-libraries" description="Install JUnit and Hackystat service libraries.">
+  <target name="install-libraries" description="Install run-time libraries.">
     <ivy:retrieve organisation="org.junit" module="junit" revision="${junit.version}" pattern="${lib.dir}/junit/[artifact].[ext]" sync="true" inline="true" conf="default" log="download-only" transitive="false" type="jar" />
     <path id="junit.path" location="${lib.dir}/junit/junit.jar" />
-    <!-- Get ROBOCODE_HOME. -->
-    <property environment="env" />
-    <path id="robocode.path" location="${env.ROBOCODE_HOME}/libs/robocode.jar"/>
+
+    <ivy:retrieve organisation="net.sourceforge.robocode" module="robocode" revision="${robocode.version}" pattern="${lib.dir}/robocode/[type]/[artifact].[ext]" sync="true" inline="true" conf="default" log="download-only" transitive="false" type="jar,script,javadoc,source" />
+    <path id="robocode.path" location="${lib.dir}/robocode/jar/robocode.jar" />
   </target>
 
   <!-- Basic properties for this system. -->
