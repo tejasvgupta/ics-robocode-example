@@ -1,0 +1,1 @@
+This system provides a template build system and source code for playing Robocode.
